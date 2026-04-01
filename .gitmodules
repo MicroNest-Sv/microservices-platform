@@ -1,0 +1,3 @@
+[submodule "client-gateway"]
+	path = client-gateway
+	url = git@github-personal:MicroNest-Sv/client-gateway.git
