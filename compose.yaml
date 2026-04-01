@@ -11,6 +11,7 @@ services:
       - ./client-gateway/.env
     environment:
       - NATS_SERVERS=nats://nats-server:4222
+      - CHOKIDAR_USEPOLLING=true
 
   nats-server:
     image: nats:latest
@@ -19,36 +20,38 @@ services:
       - 8222:8222
 
   products-ms:
-    build: ./products-ms
+    build: ./products-microservice
     restart: unless-stopped
     volumes:
-      - ./products-ms/src:/app/src
+      - ./products-microservice/src:/app/src
     command: pnpm docker:dev
     env_file:
-      - ./products-ms/.env
+      - ./products-microservice/.env
     environment:
       - NATS_SERVERS=nats://nats-server:4222
+      - CHOKIDAR_USEPOLLING=true
 
   orders-ms:
-    build: ./orders-ms
+    build: ./orders-microservice
     restart: unless-stopped
     depends_on:
       orders-db:
         condition: service_healthy
     volumes:
-      - ./orders-ms/src:/app/src
+      - ./orders-microservice/src:/app/src
     command: pnpm docker:dev
     env_file:
-      - ./orders-ms/.env
+      - ./orders-microservice/.env
     environment:
       - NATS_SERVERS=nats://nats-server:4222
       - DATABASE_URL=postgresql://postgres:postgres@orders-db:5432/orders_db?schema=public
+      - CHOKIDAR_USEPOLLING=true
 
   orders-db:
     image: postgres:18-alpine
     restart: unless-stopped
     volumes:
-      - ./orders-ms/postgres:/var/lib/postgresql
+      - ./orders-microservice/postgres:/var/lib/postgresql
     ports:
       - 5435:5432
     environment:
