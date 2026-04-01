@@ -1,0 +1,62 @@
+services:
+  client-gateway:
+    build: ./client-gateway
+    restart: unless-stopped
+    ports:
+      - 3000:3000
+    volumes:
+      - ./client-gateway/src:/app/src
+    command: pnpm start:dev
+    env_file:
+      - ./client-gateway/.env
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+
+  nats-server:
+    image: nats:latest
+    restart: unless-stopped
+    ports:
+      - 8222:8222
+
+  products-ms:
+    build: ./products-ms
+    restart: unless-stopped
+    volumes:
+      - ./products-ms/src:/app/src
+    command: pnpm docker:dev
+    env_file:
+      - ./products-ms/.env
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+
+  orders-ms:
+    build: ./orders-ms
+    restart: unless-stopped
+    depends_on:
+      orders-db:
+        condition: service_healthy
+    volumes:
+      - ./orders-ms/src:/app/src
+    command: pnpm docker:dev
+    env_file:
+      - ./orders-ms/.env
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=postgresql://postgres:postgres@orders-db:5432/orders_db?schema=public
+
+  orders-db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    volumes:
+      - ./orders-ms/postgres:/var/lib/postgresql
+    ports:
+      - 5435:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders_db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
