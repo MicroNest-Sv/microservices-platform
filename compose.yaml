@@ -69,7 +69,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./payments-microservice/src:/app/src
-    command: pnpm docker:dev
+    command: pnpm start:dev
     env_file:
       - ./payments-microservice/.env
     environment:
