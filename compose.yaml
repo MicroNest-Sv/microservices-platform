@@ -63,3 +63,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  payments-ms:
+    build: ./payments-microservice
+    restart: unless-stopped
+    volumes:
+      - ./payments-microservice/src:/app/src
+    command: pnpm docker:dev
+    env_file:
+      - ./payments-microservice/.env
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+      - CHOKIDAR_USEPOLLING=true
