@@ -70,6 +70,8 @@ services:
     volumes:
       - ./payments-microservice/src:/app/src
     command: pnpm start:dev
+    ports:
+      - 3003:3003
     env_file:
       - ./payments-microservice/.env
     environment:
