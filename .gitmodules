@@ -10,3 +10,6 @@
 [submodule "payments-microservice"]
 	path = payments-microservice
 	url = git@github-personal:MicroNest-Sv/payments-microservice.git
+[submodule "auth-microservice"]
+	path = auth-microservice
+	url = git@github-personal:MicroNest-Sv/auth-microservice.git
