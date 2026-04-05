@@ -83,7 +83,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./auth-microservice/src:/app/src
-    command: pnpm start:dev
+    command: pnpm docker:dev
     env_file:
       - ./auth-microservice/.env
     environment:
