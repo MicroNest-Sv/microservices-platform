@@ -81,6 +81,9 @@ services:
   auth-ms:
     build: ./auth-microservice
     restart: unless-stopped
+    depends_on:
+      auth-db:
+        condition: service_healthy
     volumes:
       - ./auth-microservice/src:/app/src
     command: pnpm docker:dev
@@ -88,4 +91,24 @@ services:
       - ./auth-microservice/.env
     environment:
       - NATS_SERVERS=nats://nats-server:4222
+      - DATABASE_URL=mongodb://auth-db:27017/auth_db?directConnection=true
       - CHOKIDAR_USEPOLLING=true
+
+  auth-db:
+    image: mongo:8.0
+    restart: unless-stopped
+    volumes:
+      - auth-mongo-data:/data/db
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_DATABASE: auth_db
+    command: mongod --quiet --replSet rs0
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "try { rs.status() } catch(e) { rs.initiate() }"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  auth-mongo-data:
