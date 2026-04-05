@@ -77,3 +77,15 @@ services:
     environment:
       - NATS_SERVERS=nats://nats-server:4222
       - CHOKIDAR_USEPOLLING=true
+
+  auth-ms:
+    build: ./auth-microservice
+    restart: unless-stopped
+    volumes:
+      - ./auth-microservice/src:/app/src
+    command: pnpm start:dev
+    env_file:
+      - ./auth-microservice/.env
+    environment:
+      - NATS_SERVERS=nats://nats-server:4222
+      - CHOKIDAR_USEPOLLING=true
